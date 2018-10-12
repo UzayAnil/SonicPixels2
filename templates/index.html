@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sonic Pixel 2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
+    
+</head>
+<body>
+    <label>Search composition: <input name="name" /></label>
+    <button class="load">Load</button>
+    <div id="composition-info"></div>
+    <div id="frames"></div>
+    <button id="save">SAVE</button>
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+    <script>
+        var sock = io.connect(location.origin);
+        var loadedComposition;
+        $('.load').on('click', function(e){
+            var compositionToLoad = $("input[name='name']").val();
+            $.getJSON('/load-composition/'+ compositionToLoad, function(data){
+                loadedComposition = data.loaded_composition;
+                $("#composition-info").empty();
+                $("#composition-info").append('<p>Composition: ' + loadedComposition.name + '</p>');
+                $("#composition-info").append('<p>Composer: '+loadedComposition.author+'</p>');
+                $.each(loadedComposition.palette, function(idx, v){
+                    colour = "rgb("+v.join(',')+")";
+                    $("#composition-info").append('<div style="background:'+colour+';max-width:2%;min-height:1em;"</div>');
+                });
+                $("#composition-info").append('<p>Layout: ' + loadedComposition.layout + '</p>');
+
+                $("#frames").empty();
+                $.each(loadedComposition.frames, function(idx, v) {
+                    $("#frames").append('<button class="frame" data-frame-index="'+v.frame_index+'">Frame '+ v.frame_index+"</button>");
+                })
+            });
+        });
+        $('#frames').on('click', '.frame', function(e) {
+            e.preventDefault();
+            let thisFrame = $(this).attr('data-frame-index');
+            console.log(thisFrame);
+            $.each(loadedComposition.frames, function (idx, v) {
+                if (v.frame_index == thisFrame) {
+                    sock.emit('frame', v);
+                }
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='compositionBuilder.js') }}"></script>
+    <script>
+        var comp = new Composition("Testing", "Mr Test", 2, 2);
+        console.log(comp);
+    </script>
+    <script>
+        $("#save").on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: 'save-composition',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(comp),
+                success: function () {
+                    console.log("Saved");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

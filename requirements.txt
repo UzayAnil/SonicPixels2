@@ -1,0 +1,4 @@
+pymongo==3.4.0
+python_osc==1.6.8
+Flask==1.0.2
+Flask_SocketIO==2.8.6

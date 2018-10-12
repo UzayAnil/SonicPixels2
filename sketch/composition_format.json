@@ -1,0 +1,139 @@
+{
+    "name": "Test",
+    "author": "James",
+    "layout": [
+        2,
+        2
+    ],
+    "palette": [
+        [
+            73,
+            138,
+            244
+        ],
+        [
+            221,
+            80,
+            68
+        ],
+        [
+            254,
+            206,
+            68
+        ],
+        [
+            23,
+            164,
+            96
+        ],
+        [
+            100,
+            217,
+            239
+        ],
+        [
+            249,
+            38,
+            83
+        ],
+        [
+            97,
+            200,
+            45
+        ],
+        [
+            244,
+            191,
+            117
+        ],
+        [
+            130,
+            80,
+            120
+        ]
+    ],
+    "frames": [
+        {
+            "frame_index": 0,
+            "cells": [
+                {
+                    "cell_id": 0,
+                    "state": "one-shot",
+                    "bank": 0,
+                    "sound": 1,
+                    "volume": 0.5,
+                    "begin": 0.0,
+                    "end": 1.0
+                },
+                {
+                    "cell_id": 1,
+                    "state": "one-shot",
+                    "bank": 0,
+                    "sound": 1,
+                    "volume": 0.5,
+                    "begin": 0.0,
+                    "end": 1.0
+                },
+                {
+                    "cell_id": 2,
+                    "state": "one-shot",
+                    "bank": 0,
+                    "sound": 1,
+                    "volume": 0.5,
+                    "begin": 0.0,
+                    "end": 1.0
+                },
+                {
+                    "cell_id": 3,
+                    "state": "one-shot",
+                    "bank": 0,
+                    "sound": 1,
+                    "volume": 0.5,
+                    "begin": 0.0,
+                    "end": 1.0
+                }
+            ]
+        },
+        {
+            "frame_index": 1,
+            "cells": [
+                {
+                    "cell_id": 0,
+                    "state": "loop",
+                    "bank": 1,
+                    "sound": 1,
+                    "volume": 0.5,
+                    "begin": 0.0,
+                    "end": 1.0
+                },
+                {
+                    "cell_id": 1,
+                    "state": "loop",
+                    "bank": 3,
+                    "sound": 1,
+                    "volume": 0.5,
+                    "begin": 0.0,
+                    "end": 1.0
+                },
+                {
+                    "cell_id": 2,
+                    "state": "loop",
+                    "bank": 2,
+                    "sound": 1,
+                    "volume": 0.5,
+                    "begin": 0.0,
+                    "end": 1.0
+                },
+                {
+                    "cell_id": 3,
+                    "state": "loop",
+                    "bank": 4,
+                    "sound": 1,
+                    "volume": 0.5,
+                    "begin": 0.0,
+                    "end": 1.0
+                }
+            ]
+        }
+    ]
+}

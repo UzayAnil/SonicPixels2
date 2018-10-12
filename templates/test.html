@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sonic Pixel 2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}" />
+    
+</head>
+<body>
+    <div id="interface"></div>
+    
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+    <script>
+        var sock = io.connect(location.origin);        
+    </script>
+    <script src="{{ url_for('static', filename='compositionBuilder.js') }}"></script>
+    <script>
+        var comp = new Composition("Testing", "Mr Test", 2, 2);
+        console.log(comp);
+        drawFrame(comp, 0);
+    </script>
+    <script>
+        $("#save").on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: 'save-composition',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(comp),
+                success: function () {
+                    console.log("Saved");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
