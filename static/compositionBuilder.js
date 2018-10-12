@@ -1,5 +1,5 @@
 function Cell(id) {
-    this.id = id;
+    this.cell_id = id;
     this.state = "off";
     this.bank = 0;
     this.sound = 0;
@@ -9,7 +9,7 @@ function Cell(id) {
 }
 
 function Frame(index, cells) {
-    this.index = index;
+    this.frame_index = index;
     this.cells = new Array(cells);
     for (var i = 0; i < this.cells.length; i ++) {
         this.cells[i] = new Cell(i);
