@@ -10,7 +10,10 @@
 </head>
 <body>
     <div id="interface"></div>
-    
+    <div id="drawing-tools">
+        <div id="available-frames"></div>
+        <div id="sound-picker"></div>
+    </div>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
     <script>
@@ -18,9 +21,14 @@
     </script>
     <script src="{{ url_for('static', filename='compositionBuilder.js') }}"></script>
     <script>
-        var comp = new Composition("Testing", "Mr Test", 2, 2);
-        console.log(comp);
-        drawFrame(comp, 0);
+        //var comp = new Composition("Testing", "Mr Test", 2, 2);
+        var comp;
+        $.getJSON('/load-composition/Testing', function(data) {
+            comp = data.loaded_composition;
+            console.log(comp);
+            drawFrame(comp, 0);
+            drawTools(comp);
+        });
     </script>
     <script>
         $("#save").on('click', function (e) {

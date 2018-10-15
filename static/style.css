@@ -1,24 +1,57 @@
 body {
-    margin: 0;
+margin: 0;
 }
 
 #interface {
-    height: 50vh;
-    display: flex;
-    align-content: center;
-    justify-content: center;
+height: 50vh;
+display: flex;
+align-content: center;
+justify-content: center;
 }
 
 #drawn-frame {
-    min-width: 100%;
-    min-height: 100%;
+min-width: 100%;
+min-height: 100%;
 }
 
 table, tr, td {
-    border: 1px dotted gray;
-    table-layout: fixed;
-    border-spacing: 0;
-    border-collapse: collapse;
-    margin: 0;
-    padding: 0;
+border: 1px dotted gray;
+table-layout: fixed;
+border-spacing: 0;
+border-collapse: collapse;
+margin: 0;
+padding: 0;
+background-repeat: no-repeat;
+}
+
+#drawing-tools {
+display: flex;
+flex-wrap: wrap;
+width: 100%;
+height: 45vh;
+justify-content: center;
+align-content: center;
+align-items: center;
+}
+
+#available-frames, #sound-picker {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+.frame-selector {
+    padding: .25em;
+    margin: .25em;
+    height: 2%;
+    width: 2%;
+}
+
+.colour-selector {
+    padding: .25em;
+    margin: .25em;
+    height: 3em;
+    width: 3em;
+    border-radius: 25%;
 }

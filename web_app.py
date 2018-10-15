@@ -14,6 +14,10 @@ import datetime
 import os
 
 client = udp_client.SimpleUDPClient("127.0.0.1", 8000)
+"""
+client = udp_client.UDPClient('192.168.0.255', 8000)
+client._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+"""
 
 MONGO_URL = os.environ.get('MONGO_URL')
 
@@ -40,13 +44,12 @@ def test_page():
 @APP.route('/save-composition', methods=['POST'])
 def save_composition():
     incoming = request.get_json()
-    COMPOSITIONS.insert_one(incoming)
+    COMPOSITIONS.update({'author':incoming.get('author'), 'name':incoming.get('name')}, incoming, upsert=True)
     return jsonify(saved=True)
 
 @APP.route('/load-composition/<name>')
 def load_composition(name):
     loaded_composition = COMPOSITIONS.find_one({'name': name}, {'_id':0})
-    print(loaded_composition)
     return jsonify(loaded_composition=loaded_composition)
 
 @SOCKETIO.on('connect')
