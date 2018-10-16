@@ -63,11 +63,14 @@ function drawFrame(compositionObject, frameIndex) {
         $(this).attr('data-end', frameObject.cells[idx].end);
     });
     $.each(compositionObject.palette, function (idx, val) {
-        mainStyle.addRule('[data-sound="' + idx + '"]', 'background: rgb(' + val.join(', ') + ')');
+        //mainStyle.addRule('[data-sound="' + idx + '"]', 'background: rgb(' + val.join(', ') + ')');
+        mainStyle.addRule('[data-sound="' + idx + '"]', 'background-image:linear-gradient(rgb(' + val.join(', ') + ') 0%, rgb(' + val.join(', ') + ') 100%)');
     });
 }
 
 var selectedColour = 0;
+var selectedVolume = 1.;
+var selectedBeginEnd = [0., 1.];
 
 function drawTools(compositionObject) {
     $.each(compositionObject.frames, function(idx, val) {
@@ -78,6 +81,21 @@ function drawTools(compositionObject) {
         var colourSelector = '<button class="colour-selector" data-sound="'+idx+'"></button>';
         $("#sound-picker").append(colourSelector);
     });
+    $('#begin-end').slider({
+        range: true,
+        values: [0, 100],
+        min: 0,
+        max: 100,
+        change: function (e, ui) { selectedBeginEnd = [(ui.values[0] * 0.01), (ui.values[1] * 0.01)]}
+    });
+    $('#volume').slider({
+        range: "min",
+        value: 100,
+        min:0, 
+        max:100,
+        change: function(e, ui) {selectedVolume = (ui.value*0.01)}
+    });
+    mainStyle.addRule('.ui-slider-range', 'background: rgb(' + comp.palette[selectedColour].join(', ') + ')');
 }
 
 $("#drawing-tools").on('click', ".frame-selector", function(e){
@@ -88,15 +106,24 @@ $("#drawing-tools").on('click', ".frame-selector", function(e){
 $("#drawing-tools").on('click', ".colour-selector", function (e) {
     e.preventDefault();
     selectedColour = $(this).attr('data-sound');
-    console.log(selectedColour);    
+    mainStyle.addRule('.ui-slider-range', 'background: rgb(' + comp.palette[selectedColour].join(', ') + ')');
 });
 
 $("#interface").on('click', ".sonic-pixel", function(e) {
     e.preventDefault();
     var currentFrame = $(this).closest('table').attr('data-frame-index');
     var clickedCell = $(this).attr('data-cell-id');
+    comp.frames[currentFrame].cells[clickedCell].sound = selectedColour;  
+    comp.frames[currentFrame].cells[clickedCell].volume = selectedVolume;  
+    comp.frames[currentFrame].cells[clickedCell].begin = selectedBeginEnd[0];
+    comp.frames[currentFrame].cells[clickedCell].end = selectedBeginEnd[1];
     $(this).attr('data-sound', selectedColour);
-    comp.frames[currentFrame].cells[clickedCell].sound = selectedColour;    
+    $(this).attr('data-volume', selectedVolume);
+    $(this).attr('data-begin', selectedBeginEnd[0]);
+    $(this).attr('data-end', selectedBeginEnd[1]);
+    $(this).css('opacity', $(this).attr('data-volume'));
+    $(this).css('background-size', ((selectedBeginEnd[1] * 100)-(selectedBeginEnd[0]*100)) + '%, 100%');
+    $(this).css('background-position', (selectedBeginEnd[0] * 100) + '%, 100%');
     writeComposition(comp);
 });
 

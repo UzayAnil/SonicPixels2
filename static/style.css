@@ -1,5 +1,6 @@
 body {
 margin: 0;
+font-family: sans-serif;
 }
 
 #interface {
@@ -54,4 +55,23 @@ align-items: center;
     height: 3em;
     width: 3em;
     border-radius: 25%;
+}
+
+.slider-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center
+}
+
+.slider-wrapper label {
+    margin-right: 1em;
+}
+
+#volume {
+    width: 25%;
+}
+
+#begin-end {
+    width: 25%;
 }

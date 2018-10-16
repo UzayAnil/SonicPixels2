@@ -39,7 +39,7 @@ def index():
 
 @APP.route('/test')
 def test_page():
-    return render_template('test.html')
+    return render_template('test_playback.html')
 
 @APP.route('/save-composition', methods=['POST'])
 def save_composition():
