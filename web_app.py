@@ -2,6 +2,7 @@ from flask import Flask, flash, url_for, render_template, request, redirect, mak
 from flask_socketio import SocketIO
 from pythonosc import osc_message_builder
 from pythonosc import udp_client
+import socket
 
 import json
 
@@ -13,11 +14,11 @@ import datetime
 
 import os
 
-client = udp_client.SimpleUDPClient("127.0.0.1", 8000)
-"""
-client = udp_client.UDPClient('192.168.0.255', 8000)
+#client = udp_client.SimpleUDPClient("127.0.0.1", 8000)
+
+client = udp_client.UDPClient('10.99.100.255', 8000)
 client._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-"""
+
 
 MONGO_URL = os.environ.get('MONGO_URL')
 
@@ -62,14 +63,15 @@ def handle_frame(data):
         send_osc(cell)
 
 def send_osc(cell_args):
-    client.send_message("/pixel", "%s %s %s %s %s %s %s" % (
-    cell_args.get('cell_id'),\
-    cell_args.get('state'),\
-    cell_args.get('bank'),\
-    cell_args.get('sound'),\
-    cell_args.get('volume'),\
-    cell_args.get('start'),\
-    cell_args.get('end')))
+    msg = osc_message_builder.OscMessageBuilder(address='/pixel')
+    msg.add_arg(cell_args.get('cell_id'))
+    msg.add_arg(cell_args.get('state'))
+    msg.add_arg(cell_args.get('bank'))
+    msg.add_arg(cell_args.get('sound'))
+    msg.add_arg(cell_args.get('volume'))
+    msg.add_arg(cell_args.get('begin'))
+    msg.add_arg(cell_args.get('end'))
+    client.send(msg.build())
 
 if __name__ == '__main__':
     SOCKETIO.run(APP, host="0.0.0.0", debug=True)

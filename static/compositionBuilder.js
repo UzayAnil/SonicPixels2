@@ -112,20 +112,39 @@ $("#drawing-tools").on('click', ".colour-selector", function (e) {
     mainStyle.addRule('.ui-slider-range', 'background: rgb(' + comp.palette[selectedColour].join(', ') + ')');
 });
 
-$("#interface").on('click', ".sonic-pixel", function(e) {
+//bind touch events for the interaction with the main interface
+var mouseIsDown = false;
+$('#interface').on('mousedown', '.sonic-pixel', function (e) {
     e.preventDefault();
-    var currentFrame = $(this).closest('table').attr('data-frame-index');
-    var clickedCell = $(this).attr('data-cell-id');
-    comp.frames[currentFrame].cells[clickedCell].state = selectedState;  
-    comp.frames[currentFrame].cells[clickedCell].sound = selectedColour;  
-    comp.frames[currentFrame].cells[clickedCell].volume = selectedVolume;  
+    fillCell($(this));
+    mouseIsDown = true;
+}).on('mousemove', '.sonic-pixel', function (e) {
+    e.preventDefault();
+    if (mouseIsDown) {
+        fillCell($(this));
+    }
+});
+$(document).on('mouseup', function () {
+    mouseIsDown = false;
+});
+
+$("#interface").on('mouseup', function(){
+    writeComposition(comp);
+});
+
+function fillCell(cell) {
+    var currentFrame = cell.closest('table').attr('data-frame-index');
+    var clickedCell = cell.attr('data-cell-id');
+    comp.frames[currentFrame].cells[clickedCell].state = selectedState;
+    comp.frames[currentFrame].cells[clickedCell].sound = selectedColour;
+    comp.frames[currentFrame].cells[clickedCell].volume = selectedVolume;
     comp.frames[currentFrame].cells[clickedCell].begin = selectedBeginEnd[0];
     comp.frames[currentFrame].cells[clickedCell].end = selectedBeginEnd[1];
     drawFrame(comp, currentFrame);
-    //$(this).css('background-size', ((selectedBeginEnd[1] * 100)-(selectedBeginEnd[0]*100)) + '%, 100%');
-    //$(this).css('background-position', (selectedBeginEnd[0] * 100)/2 + '%, 100%');
-    writeComposition(comp);
-});
+    sock.emit('frame', comp.frames[currentFrame]);
+    //cell.css('background-size', ((selectedBeginEnd[1] * 100)-(selectedBeginEnd[0]*100)) + '%, 100%');
+    //cell.css('background-position', (selectedBeginEnd[0] * 100)/2 + '%, 100%');
+}
 
 $("input[name='state-select']").on('change', function(e){
     e.preventDefault();
