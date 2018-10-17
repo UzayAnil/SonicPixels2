@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Sonic Pixel 2</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script defer src="{{ url_for('static', filename='all.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui.min.css') }}" />
     <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}" />
     
@@ -22,6 +23,17 @@
             <label>Begin/end: </label>
             <div id="begin-end"></div>
         </div>
+        <div id="state-selector">
+          <label>Off
+                <input type="radio" name="state-select" value="off" />
+            </label>
+          <label>Play once
+            <input type="radio" name="state-select" value="one-shot" checked="checked" />
+          </label>
+          <label>Loop
+            <input type="radio" name="state-select" value="loop" />
+          </label>
+        </div>
     </div>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
         <script src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
@@ -33,7 +45,7 @@
     <script>
         //var comp = new Composition("Testing", "Mr Test", 2, 2);
         var comp;
-        $.getJSON('/load-composition/Testing', function(data) {
+        $.getJSON('/load-composition/Something', function(data) {
             comp = data.loaded_composition;
             console.log(comp);
             drawFrame(comp, 0);

@@ -31,6 +31,7 @@ function Composition(name, author, layoutX, layoutY) {
 };
 
 var mainStyle = document.styleSheets[0];
+var stateIcons = {'loop':'undo', 'one-shot':'arrow-right', 'off':'times-circle'};
 
 function drawFrame(compositionObject, frameIndex) {
     var columns = compositionObject.layout[0]
@@ -61,6 +62,7 @@ function drawFrame(compositionObject, frameIndex) {
         $(this).css('opacity', $(this).attr('data-volume'));
         $(this).attr('data-begin', frameObject.cells[idx].begin);
         $(this).attr('data-end', frameObject.cells[idx].end);
+        $(this).html('<p><i class="fas fa-' + stateIcons[frameObject.cells[idx].state]+' fa-fw"></i></p>');
     });
     $.each(compositionObject.palette, function (idx, val) {
         //mainStyle.addRule('[data-sound="' + idx + '"]', 'background: rgb(' + val.join(', ') + ')');
@@ -68,6 +70,7 @@ function drawFrame(compositionObject, frameIndex) {
     });
 }
 
+var selectedState = 'one-shot';
 var selectedColour = 0;
 var selectedVolume = 1.;
 var selectedBeginEnd = [0., 1.];
@@ -113,18 +116,20 @@ $("#interface").on('click', ".sonic-pixel", function(e) {
     e.preventDefault();
     var currentFrame = $(this).closest('table').attr('data-frame-index');
     var clickedCell = $(this).attr('data-cell-id');
+    comp.frames[currentFrame].cells[clickedCell].state = selectedState;  
     comp.frames[currentFrame].cells[clickedCell].sound = selectedColour;  
     comp.frames[currentFrame].cells[clickedCell].volume = selectedVolume;  
     comp.frames[currentFrame].cells[clickedCell].begin = selectedBeginEnd[0];
     comp.frames[currentFrame].cells[clickedCell].end = selectedBeginEnd[1];
-    $(this).attr('data-sound', selectedColour);
-    $(this).attr('data-volume', selectedVolume);
-    $(this).attr('data-begin', selectedBeginEnd[0]);
-    $(this).attr('data-end', selectedBeginEnd[1]);
-    $(this).css('opacity', $(this).attr('data-volume'));
-    $(this).css('background-size', ((selectedBeginEnd[1] * 100)-(selectedBeginEnd[0]*100)) + '%, 100%');
-    $(this).css('background-position', (selectedBeginEnd[0] * 100) + '%, 100%');
+    drawFrame(comp, currentFrame);
+    //$(this).css('background-size', ((selectedBeginEnd[1] * 100)-(selectedBeginEnd[0]*100)) + '%, 100%');
+    //$(this).css('background-position', (selectedBeginEnd[0] * 100)/2 + '%, 100%');
     writeComposition(comp);
+});
+
+$("input[name='state-select']").on('change', function(e){
+    e.preventDefault();
+    selectedState = $(this).val();
 });
 
 function writeComposition(compositionObject) {
