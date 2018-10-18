@@ -66,6 +66,14 @@ align-items: center;
     border-radius: 25%;
 }
 
+.fill-type {
+    -webkit-appearance: button;
+    border: 1px solid black;
+    min-width: 3em;
+    min-height: 3em;
+    border-radius: 25%;
+}
+
 .slider-wrapper {
     width: 100%;
     display: flex;
@@ -84,4 +92,11 @@ align-items: center;
 
 #begin-end {
     width: 30%;
+}
+
+#playback-controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
 }

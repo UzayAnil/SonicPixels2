@@ -14,9 +14,11 @@ import datetime
 
 import os
 
-#client = udp_client.SimpleUDPClient("127.0.0.1", 8000)
+#IP_RANGE = '10.99.100.255'
+IP_RANGE = '192.168.4.255'
+PORT = 9000
 
-client = udp_client.UDPClient('10.99.100.255', 8000)
+client = udp_client.UDPClient(IP_RANGE, PORT)
 client._sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 
@@ -33,6 +35,10 @@ APP = Flask(__name__)
 APP.secret_key = os.environ.get('SECRET_KEY')
 
 SOCKETIO = SocketIO(APP)
+
+WAV_COMMANDS = {'one-shot':1, 'loop':1, 'off': 3}
+LOOP_COMMANDS = {'one-shot': 0, 'loop': 1, 'off': 0, }
+DATA_SIZE = 5
 
 @APP.route('/')
 def index():
@@ -59,18 +65,26 @@ def connect():
 
 @SOCKETIO.on('frame')
 def handle_frame(data):
+    msg = osc_message_builder.OscMessageBuilder(address='/BULK')
+    current_palette = data.get('palette')
+    current_num_units = data.get('numUnits')
+    meta = current_num_units | DATA_SIZE << 16
+    msg.add_arg(meta)
     for cell in data.get('cells'):
-        send_osc(cell)
-
-def send_osc(cell_args):
-    msg = osc_message_builder.OscMessageBuilder(address='/pixel')
-    msg.add_arg(cell_args.get('cell_id'))
-    msg.add_arg(cell_args.get('state'))
-    msg.add_arg(cell_args.get('bank'))
-    msg.add_arg(cell_args.get('sound'))
-    msg.add_arg(cell_args.get('volume'))
-    msg.add_arg(cell_args.get('begin'))
-    msg.add_arg(cell_args.get('end'))
+        wav_command = WAV_COMMANDS.get(cell.get('state'))
+        loop_cmd = LOOP_COMMANDS.get(cell.get('state'))
+        action = wav_command | loop_cmd << 7
+        playback_cmd = int(cell.get('sound')) | int(cell.get('bank')) << 8 | action << 16
+        msg.add_arg(playback_cmd)
+        msg.add_arg(cell.get('begin'))
+        msg.add_arg(cell.get('end'))
+        msg.add_arg(cell.get('volume'))
+        if cell.get('state') == 'off':
+            cell_colour = [0, 0, 0]
+        else:
+            cell_colour = current_palette[int(cell.get('sound'))]
+        light_cmd = cell_colour[0] | cell_colour[1] << 8 | cell_colour[2] << 16
+        msg.add_arg(light_cmd)
     client.send(msg.build())
 
 if __name__ == '__main__':

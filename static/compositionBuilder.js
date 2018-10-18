@@ -141,10 +141,20 @@ function fillCell(cell) {
     comp.frames[currentFrame].cells[clickedCell].begin = selectedBeginEnd[0];
     comp.frames[currentFrame].cells[clickedCell].end = selectedBeginEnd[1];
     drawFrame(comp, currentFrame);
-    sock.emit('frame', comp.frames[currentFrame]);
+    //sock.emit('frame', comp.frames[currentFrame]);
     //cell.css('background-size', ((selectedBeginEnd[1] * 100)-(selectedBeginEnd[0]*100)) + '%, 100%');
     //cell.css('background-position', (selectedBeginEnd[0] * 100)/2 + '%, 100%');
 }
+
+$("#play-current-frame").on('click', function(e){
+    e.preventDefault();
+    console.log("playing");
+    var currentFrame = $("#drawn-frame").attr("data-frame-index");
+    var frameToSend = comp.frames[currentFrame];
+    frameToSend.palette = comp.palette;
+    frameToSend.numUnits = comp.layout[0] * comp.layout[1]
+    sock.emit('frame', frameToSend);
+});
 
 $("input[name='state-select']").on('change', function(e){
     e.preventDefault();

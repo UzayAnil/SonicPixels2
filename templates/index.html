@@ -14,7 +14,9 @@
     <div id="interface"></div>
     <div id="drawing-tools">
         <div id="available-frames"></div>
-        <div id="sound-picker"></div>
+        <div id="sound-picker">
+            <input id="clear" class="fill-type" type="radio" name="state-select" value="off" />
+        </div>
         <div class="slider-wrapper">
             <label>Volume: </label>
             <div id="volume"></div>
@@ -24,15 +26,11 @@
             <div id="begin-end"></div>
         </div>
         <div id="state-selector">
-          <label>Off
-                <input type="radio" name="state-select" value="off" />
-            </label>
-          <label>Play once
-            <input type="radio" name="state-select" value="one-shot" checked="checked" />
-          </label>
-          <label>Loop
-            <input type="radio" name="state-select" value="loop" />
-          </label>
+            <input id="one-shot" class="fill-type" type="radio" name="state-select" value="one-shot" checked="checked" />
+            <input id="loop" class="fill-type" type="radio" name="state-select" value="loop" />
+        </div>
+        <div id="playback-controls">
+          <button id="play-current-frame">Play frame</button>
         </div>
     </div>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
@@ -43,27 +41,11 @@
     </script>
     <script src="{{ url_for('static', filename='compositionBuilder.js') }}"></script>
     <script>
-        //var comp = new Composition("Testing", "Mr Test", 2, 2);
         var comp;
-        $.getJSON('/load-composition/Something', function(data) {
+        $.getJSON('/load-composition/live', function(data) {
             comp = data.loaded_composition;
-            console.log(comp);
             drawFrame(comp, 0);
             drawTools(comp);
-        });
-    </script>
-    <script>
-        $("#save").on('click', function (e) {
-            e.preventDefault();
-            $.ajax({
-                type: "POST",
-                url: 'save-composition',
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify(comp),
-                success: function () {
-                    console.log("Saved");
-                }
-            });
         });
     </script>
 </body>
