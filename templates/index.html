@@ -4,23 +4,33 @@
     <meta charset="utf-8" />
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='safari-pinned-tab.svg') }}" color="#5d5d5d">
+    <meta name="theme-color" content="#ffffff">
     <title>Sonic Pixel 2</title>
     <script defer src="{{ url_for('static', filename='all.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui.min.css') }}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}?1" />
     
 </head>
 <body>
     <div id="interface"></div>
     <div id="drawing-tools">
         <div id="available-frames"></div>
-        <div>
-            <select id="bank-select">
-                <option val="0">0</option>
-                <option val="1">1</option>
-                <option val="2">2</option>
-            </select>
+        <div id="bank-wrapper">
+            <label for="bank-select">
+                Bank select:
+                <select id="bank-select">
+                    <option val="0">0</option>
+                    <option val="1">1</option>
+                    <option val="2">2</option>
+                </select>
+            </label>
         </div>
         <div id="sound-picker">
             <input id="clear" class="fill-type" type="radio" name="state-select" value="off" />
@@ -55,6 +65,11 @@
     <script src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
     <script>
         var sock = io.connect(location.origin);        
+    </script>
+    <script>
+        document.ontouchmove = function (e) {
+                e.preventDefault();
+            }
     </script>
     <script src="{{ url_for('static', filename='compositionBuilder.js') }}"></script>
     <script>

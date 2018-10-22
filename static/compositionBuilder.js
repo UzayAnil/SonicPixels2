@@ -1,50 +1,51 @@
+//object to store cell details
 function Cell(id) {
-    this.cell_id = id;
+    this.cell_id = id; //individual cell ID
     this.state = "off";
     this.bank = 0;
     this.sound = 0;
     this.volume = 1.0;
-    this.begin = 0.0;
-    this.end = 1.0;
+    this.begin = 0.0; //where to start audio file
+    this.end = 1.0; //where to stop audio file
 }
-
+//object to store frames details i.e. cells and an index
 function Frame(index, cells) {
     this.frame_index = index;
-    this.cells = new Array(cells);
+    this.cells = new Array(cells); //empty array for cells
     for (var i = 0; i < this.cells.length; i ++) {
-        this.cells[i] = new Cell(i);
+        this.cells[i] = new Cell(i); //new cell object
     }
 };
-
+//object to store a full composition i.e. frames, names, layout, palette etc.
 function Composition(name, author, layoutX, layoutY) {
-    this.name = name;
-    this.author = author;
-    this.masterVolume = 1.;
-    this.layout = [layoutX, layoutY];
-    this.palette = new Array(8);
+    this.name = name; //name of piece
+    this.author = author; //name of its author
+    this.masterVolume = 1.; //master volume, to scale all individual volumes
+    this.layout = [layoutX, layoutY]; //layout (pixels on X and Y axes)
+    this.palette = new Array(8); //empty array for pixel palette
     for (var i = 0; i < this.palette.length; i ++) {
-        this.palette[i] = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
+        this.palette[i] = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]; //random RGB values
     };
-    this.frames = new Array(8);
+    this.frames = new Array(8); //empty array for frames
     for (var i = 0; i < (this.frames.length); i ++) {
-        this.frames[i] = new Frame(i, (this.layout[0] * this.layout[1]));
+        this.frames[i] = new Frame(i, (this.layout[0] * this.layout[1])); //new frame objects
     };
 };
 
-var mainStyle = document.styleSheets[0];
-var stateIcons = {'loop':'undo', 'one-shot':'arrow-right', 'off':'times-circle'};
+var mainStyle = document.styleSheets[0]; //the main stylesheet for editing
+var stateIcons = {'loop':'undo', 'one-shot':'arrow-right', 'off':'times-circle'}; //font-awesome icons for cells
 
-var sequencerBounds;
+var sequencerBounds; //variable to store bounds of sequencer frame
 
-
+//function to initially draw frame
 function drawFrame(compositionObject, frameIndex) {
-    var columns = compositionObject.layout[0]
-    var rows = compositionObject.layout[1];
-    var columnWidth = Math.floor(100/ columns) + "%";
-    var rowHeight = Math.floor(100 / rows) + "%";
-    mainStyle.addRule('td', 'min-width:' + columnWidth)
+    var columns = compositionObject.layout[0]; //columns from layout
+    var rows = compositionObject.layout[1]; //rows from layout
+    var columnWidth = Math.floor(100/ columns) + "%"; //set column width by num of cells
+    var rowHeight = Math.floor(100 / rows) + "%"; //set row height by num of cells
+    mainStyle.addRule('td', 'min-width:' + columnWidth) //add those rules
     mainStyle.addRule('tr', 'min-height:' + rowHeight);
-    frameObject = compositionObject.frames[frameIndex];
+    frameObject = compositionObject.frames[frameIndex]; 
     $("#interface").empty();
     var theTable = '<table id="drawn-frame" data-frame-index="'+frameObject.frame_index+'"></table>';
     $("#interface").empty();

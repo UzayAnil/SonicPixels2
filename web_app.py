@@ -14,8 +14,9 @@ import datetime
 
 import os
 
-IP_RANGE = '10.99.100.255'
+#IP_RANGE = '10.99.100.255'
 #IP_RANGE = '192.168.4.255'
+IP_RANGE = '10.99.204.255'
 PORT = 9000
 
 client = udp_client.UDPClient(IP_RANGE, PORT)
@@ -79,7 +80,7 @@ def handle_frame(data):
         msg.add_arg(playback_cmd)
         msg.add_arg(float(cell.get('begin')))
         msg.add_arg(float(cell.get('end')))
-        msg.add_arg(float(cell.get('volume')))
+        msg.add_arg(float(cell.get('volume'))*master_volume)
         if cell.get('state') == 'off':
             cell_colour = [0, 0, 0]
         else:
