@@ -19,6 +19,7 @@ function Frame(index, cells) {
 function Composition(name, author, layoutX, layoutY) {
     this.name = name;
     this.author = author;
+    this.masterVolume = 1.;
     this.layout = [layoutX, layoutY];
     this.palette = new Array(8);
     for (var i = 0; i < this.palette.length; i ++) {
@@ -32,6 +33,9 @@ function Composition(name, author, layoutX, layoutY) {
 
 var mainStyle = document.styleSheets[0];
 var stateIcons = {'loop':'undo', 'one-shot':'arrow-right', 'off':'times-circle'};
+
+var sequencerBounds;
+
 
 function drawFrame(compositionObject, frameIndex) {
     var columns = compositionObject.layout[0]
@@ -65,13 +69,26 @@ function drawFrame(compositionObject, frameIndex) {
         $(this).html('<p><i class="fas fa-' + stateIcons[frameObject.cells[idx].state]+' fa-fw"></i></p>');
     });
     $.each(compositionObject.palette, function (idx, val) {
-        //mainStyle.addRule('[data-sound="' + idx + '"]', 'background: rgb(' + val.join(', ') + ')');
-        mainStyle.addRule('[data-sound="' + idx + '"]', 'background-image:linear-gradient(rgb(' + val.join(', ') + ') 0%, rgb(' + val.join(', ') + ') 100%)');
+        mainStyle.addRule('[data-sound="' + idx + '"]', 'background: rgb(' + val.join(', ') + ')');
     });
+    sequencerBounds = $('#interface .sonic-pixel').map(function () {
+        var e = $(this),
+            o = e.offset(),
+            w = e.width(),
+            h = e.height();
+        return {
+            top: o.top,
+            left: o.left,
+            right: o.left + w,
+            bottom: o.top + h,
+            e: e
+        }
+    }).get();
 }
 
 var selectedState = 'one-shot';
 var selectedColour = 0;
+var selectedBank = 0;
 var selectedVolume = 1.;
 var selectedBeginEnd = [0., 1.];
 
@@ -109,7 +126,73 @@ $("#drawing-tools").on('click', ".frame-selector", function(e){
 $("#drawing-tools").on('click', ".colour-selector", function (e) {
     e.preventDefault();
     selectedColour = $(this).attr('data-sound');
+    $('#one-shot').prop('checked', true).trigger('change');
     mainStyle.addRule('.ui-slider-range', 'background: rgb(' + comp.palette[selectedColour].join(', ') + ')');
+});
+
+
+
+function fillCell(cell) {
+    var currentFrame = cell.closest('table').attr('data-frame-index');
+    var clickedCell = cell.attr('data-cell-id');
+    console.log("Painting:");
+    console.log(clickedCell);
+    comp.frames[currentFrame].cells[clickedCell].state = selectedState;
+    comp.frames[currentFrame].cells[clickedCell].sound = selectedColour;
+    comp.frames[currentFrame].cells[clickedCell].bank = selectedBank;
+    comp.frames[currentFrame].cells[clickedCell].volume = selectedVolume;
+    comp.frames[currentFrame].cells[clickedCell].begin = selectedBeginEnd[0];
+    comp.frames[currentFrame].cells[clickedCell].end = selectedBeginEnd[1];
+    cell.attr('data-state', frameObject.cells[clickedCell].state);
+    cell.attr('data-bank', frameObject.cells[clickedCell].bank);
+    cell.attr('data-sound', frameObject.cells[clickedCell].sound);
+    cell.attr('data-volume', frameObject.cells[clickedCell].volume);
+    cell.css('opacity', cell.attr('data-volume'));
+    cell.attr('data-begin', frameObject.cells[clickedCell].begin);
+    cell.attr('data-end', frameObject.cells[clickedCell].end);
+    cell.html('<p><i class="fas fa-' + stateIcons[frameObject.cells[clickedCell].state] + ' fa-fw"></i></p>');
+}
+
+$("#play-current-frame").on('click', function(e){
+    e.preventDefault();
+    var currentFrame = $("#drawn-frame").attr("data-frame-index");
+    var frameToSend = comp.frames[currentFrame];
+    frameToSend.palette = comp.palette;
+    frameToSend.numUnits = comp.layout[0] * comp.layout[1]
+    frameToSend.masterVolume = comp.masterVolume;
+    sock.emit('frame', frameToSend);
+});
+
+$("#bank-select").on('change', function(e) {
+    selectedBank = $(this).val();
+});
+
+$("input[name='state-select']").on('change', function(e){
+    e.preventDefault();
+    selectedState = $(this).val();
+});
+
+function writeComposition(compositionObject) {
+    $.ajax({
+        type: "POST",
+        url: 'save-composition',
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(compositionObject),
+        success: function () {
+            console.log("Saved");
+        }
+    });
+}
+
+$('#master-volume').slider({
+    range: "min",
+    value: 100,
+    min: 0,
+    max: 100,
+    change: function (e, ui) { 
+        comp.masterVolume = ui.value*0.01;
+        writeComposition(comp);
+    }
 });
 
 //bind touch events for the interaction with the main interface
@@ -128,47 +211,46 @@ $(document).on('mouseup', function () {
     mouseIsDown = false;
 });
 
-$("#interface").on('mouseup', function(){
+$("#interface").on('mouseup touchend', function () {
     writeComposition(comp);
 });
 
-function fillCell(cell) {
-    var currentFrame = cell.closest('table').attr('data-frame-index');
-    var clickedCell = cell.attr('data-cell-id');
-    comp.frames[currentFrame].cells[clickedCell].state = selectedState;
-    comp.frames[currentFrame].cells[clickedCell].sound = selectedColour;
-    comp.frames[currentFrame].cells[clickedCell].volume = selectedVolume;
-    comp.frames[currentFrame].cells[clickedCell].begin = selectedBeginEnd[0];
-    comp.frames[currentFrame].cells[clickedCell].end = selectedBeginEnd[1];
-    drawFrame(comp, currentFrame);
-    //sock.emit('frame', comp.frames[currentFrame]);
-    //cell.css('background-size', ((selectedBeginEnd[1] * 100)-(selectedBeginEnd[0]*100)) + '%, 100%');
-    //cell.css('background-position', (selectedBeginEnd[0] * 100)/2 + '%, 100%');
+//equivalent dragging detection for touch, credit: http://output.jsbin.com/favobu
+// first - store the coords of all the cells for the position check
+
+
+var currentTarget = $(),
+    activeTarget = $();
+
+var touchF = function (e) {
+    e.preventDefault();
+    var touch = e.originalEvent.touches[0];
+    currentTarget = getCurrent(
+        {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        }
+    );
+    // if the touch is in one of the cells and it's different than the last touch cell
+    if (currentTarget && currentTarget != activeTarget) {
+        activeTarget = currentTarget;
+        fillCell(activeTarget);
+    }
+    
 }
 
-$("#play-current-frame").on('click', function(e){
-    e.preventDefault();
-    console.log("playing");
-    var currentFrame = $("#drawn-frame").attr("data-frame-index");
-    var frameToSend = comp.frames[currentFrame];
-    frameToSend.palette = comp.palette;
-    frameToSend.numUnits = comp.layout[0] * comp.layout[1]
-    sock.emit('frame', frameToSend);
-});
+$("#interface").on('touchstart touchmove', '.sonic-pixel' , touchF);
 
-$("input[name='state-select']").on('change', function(e){
-    e.preventDefault();
-    selectedState = $(this).val();
-});
-
-function writeComposition(compositionObject) {
-    $.ajax({
-        type: "POST",
-        url: 'save-composition',
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify(compositionObject),
-        success: function () {
-            console.log("Saved");
-        }
+function getCurrent(touch) {
+    // check if the touch coords are in the position of one of the cells and which one
+    var a = sequencerBounds.filter(function (obj) {
+        var b = (
+            touch.clientX > obj.left &&
+            touch.clientX < obj.right &&
+            touch.clientY < obj.bottom &&
+            touch.clientY > obj.top
+        );
+        return b;
     });
+    return a.length > 0 ? a[0].e : null;
 }

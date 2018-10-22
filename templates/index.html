@@ -2,9 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">    
     <title>Sonic Pixel 2</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script defer src="{{ url_for('static', filename='all.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui.min.css') }}" />
     <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}" />
@@ -14,6 +15,13 @@
     <div id="interface"></div>
     <div id="drawing-tools">
         <div id="available-frames"></div>
+        <div>
+            <select id="bank-select">
+                <option val="0">0</option>
+                <option val="1">1</option>
+                <option val="2">2</option>
+            </select>
+        </div>
         <div id="sound-picker">
             <input id="clear" class="fill-type" type="radio" name="state-select" value="off" />
         </div>
@@ -26,11 +34,20 @@
             <div id="begin-end"></div>
         </div>
         <div id="state-selector">
-            <input id="one-shot" class="fill-type" type="radio" name="state-select" value="one-shot" checked="checked" />
-            <input id="loop" class="fill-type" type="radio" name="state-select" value="loop" />
+            <label for="one-shot">
+                Play once
+                <input id="one-shot" class="fill-type" type="radio" name="state-select" value="one-shot" checked />
+            </label>
+            <label for="loop">
+                <input id="loop" class="fill-type" type="radio" name="state-select" value="loop" />
+                Loop
+           </label>
         </div>
         <div id="playback-controls">
           <button id="play-current-frame">Play frame</button>
+        </div>
+        <div class="slider-wrapper">
+            <div id="master-volume"></div>
         </div>
     </div>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
@@ -41,9 +58,16 @@
     </script>
     <script src="{{ url_for('static', filename='compositionBuilder.js') }}"></script>
     <script>
+        var authorName = prompt('Composer name:').toLowerCase();
+        var compositionName = prompt('Composition name:').toLowerCase();
         var comp;
-        $.getJSON('/load-composition/live', function(data) {
+        $.getJSON('/load-composition/'+ authorName+'/'+ compositionName, function(data) {
             comp = data.loaded_composition;
+            if (!comp) {
+                var xCells = (prompt('Number of speakers on  X-axis'));
+                var yCells = (prompt('Number of speakers on  Y-axis'));
+                comp = new Composition(compositionName, authorName, xCells, yCells);
+            }
             drawFrame(comp, 0);
             drawTools(comp);
         });

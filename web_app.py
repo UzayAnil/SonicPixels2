@@ -14,8 +14,8 @@ import datetime
 
 import os
 
-#IP_RANGE = '10.99.100.255'
-IP_RANGE = '192.168.4.255'
+IP_RANGE = '10.99.100.255'
+#IP_RANGE = '192.168.4.255'
 PORT = 9000
 
 client = udp_client.UDPClient(IP_RANGE, PORT)
@@ -54,9 +54,9 @@ def save_composition():
     COMPOSITIONS.update({'author':incoming.get('author'), 'name':incoming.get('name')}, incoming, upsert=True)
     return jsonify(saved=True)
 
-@APP.route('/load-composition/<name>')
-def load_composition(name):
-    loaded_composition = COMPOSITIONS.find_one({'name': name}, {'_id':0})
+@APP.route('/load-composition/<author>/<name>')
+def load_composition(author, name):
+    loaded_composition = COMPOSITIONS.find_one({'name': name, 'author':author}, {'_id':0})
     return jsonify(loaded_composition=loaded_composition)
 
 @SOCKETIO.on('connect')
@@ -66,6 +66,7 @@ def connect():
 @SOCKETIO.on('frame')
 def handle_frame(data):
     msg = osc_message_builder.OscMessageBuilder(address='/BULK')
+    master_volume = float(data.get('masterVolume'))
     current_palette = data.get('palette')
     current_num_units = data.get('numUnits')
     meta = current_num_units | DATA_SIZE << 16
@@ -76,9 +77,9 @@ def handle_frame(data):
         action = wav_command | loop_cmd << 7
         playback_cmd = int(cell.get('sound')) | int(cell.get('bank')) << 8 | action << 16
         msg.add_arg(playback_cmd)
-        msg.add_arg(cell.get('begin'))
-        msg.add_arg(cell.get('end'))
-        msg.add_arg(cell.get('volume'))
+        msg.add_arg(float(cell.get('begin')))
+        msg.add_arg(float(cell.get('end')))
+        msg.add_arg(float(cell.get('volume')))
         if cell.get('state') == 'off':
             cell_colour = [0, 0, 0]
         else:
