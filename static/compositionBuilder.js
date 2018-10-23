@@ -1,3 +1,6 @@
+/*-----------------------------------------------------------------------------------------------
+Composition object creation
+-----------------------------------------------------------------------------------------------*/
 //object to store cell details
 function Cell(id) {
     this.cell_id = id; //individual cell ID
@@ -8,8 +11,10 @@ function Cell(id) {
     this.begin = 0.0; //where to start audio file
     this.end = 1.0; //where to stop audio file
 }
-//object to store frames details i.e. cells and an index
+//object to store frames details i.e. cells, index, bank, and an interval time
 function Frame(index, cells) {
+    this.frame_interval = 1000;
+    this.frame_bank = 1;
     this.frame_index = index;
     this.cells = new Array(cells); //empty array for cells
     for (var i = 0; i < this.cells.length; i ++) {
@@ -20,7 +25,7 @@ function Frame(index, cells) {
 function Composition(name, author, layoutX, layoutY) {
     this.name = name; //name of piece
     this.author = author; //name of its author
-    this.masterVolume = 1.; //master volume, to scale all individual volumes
+    this.master_volume = 1.; //master volume, to scale all individual volumes
     this.layout = [layoutX, layoutY]; //layout (pixels on X and Y axes)
     this.palette = new Array(8); //empty array for pixel palette
     for (var i = 0; i < this.palette.length; i ++) {
@@ -31,6 +36,10 @@ function Composition(name, author, layoutX, layoutY) {
         this.frames[i] = new Frame(i, (this.layout[0] * this.layout[1])); //new frame objects
     };
 };
+
+/*-----------------------------------------------------------------------------------------------
+Frame drawing
+-----------------------------------------------------------------------------------------------*/
 
 var mainStyle = document.styleSheets[0]; //the main stylesheet for editing
 var stateIcons = {'loop':'undo', 'one-shot':'arrow-right', 'off':'times-circle'}; //font-awesome icons for cells
@@ -45,11 +54,10 @@ function drawFrame(compositionObject, frameIndex) {
     var rowHeight = Math.floor(100 / rows) + "%"; //set row height by num of cells
     mainStyle.addRule('td', 'min-width:' + columnWidth) //add those rules
     mainStyle.addRule('tr', 'min-height:' + rowHeight);
-    frameObject = compositionObject.frames[frameIndex]; 
-    $("#interface").empty();
-    var theTable = '<table id="drawn-frame" data-frame-index="'+frameObject.frame_index+'"></table>';
-    $("#interface").empty();
-    $("#interface").append(theTable);
+    frameObject = compositionObject.frames[frameIndex]; //get current frame
+    var theTable = '<table id="drawn-frame" data-frame-index="'+frameObject.frame_index+'" data-frame-bank="'+frameObject.frame_bank+'" data-frame-interval="'+frameObject.frame_interval+'"></table>';
+    $("#interface").empty(); //clear the interface
+    $("#interface").append(theTable); //add the table
     for (var row = 0; row < rows; row ++) {
         var newRow = "<tr>";
         for (var col = 0; col < columns; col ++) {
@@ -57,7 +65,7 @@ function drawFrame(compositionObject, frameIndex) {
         };
         newRow += '</tr>';
         $("#drawn-frame").append(newRow);
-    };
+    }; //add the rows
     $('td').each(function(idx, val){
         $(this).attr('data-cell-id', idx);
         $(this).attr('data-state', frameObject.cells[idx].state);
@@ -68,11 +76,13 @@ function drawFrame(compositionObject, frameIndex) {
         $(this).attr('data-begin', frameObject.cells[idx].begin);
         $(this).attr('data-end', frameObject.cells[idx].end);
         $(this).html('<p><i class="fas fa-' + stateIcons[frameObject.cells[idx].state]+' fa-fw"></i></p>');
-    });
+    }); //add the cell parameters
     $.each(compositionObject.palette, function (idx, val) {
         mainStyle.addRule('[data-sound="' + idx + '"]', 'background: rgb(' + val.join(', ') + ')');
-    });
-    sequencerBounds = $('#interface .sonic-pixel').map(function () {
+    }); //colour them in
+    $("#frame-interval").val(compositionObject.frames[frameIndex].frame_interval);
+    $("#bank-select").val(compositionObject.frames[frameIndex].frame_bank);
+    sequencerBounds = $('#interface .sonic-pixel').map(function () { //get the sequencer bounds to track finger movements
         var e = $(this),
             o = e.offset(),
             w = e.width(),
@@ -86,7 +96,9 @@ function drawFrame(compositionObject, frameIndex) {
         }
     }).get();
 }
-
+/*-----------------------------------------------------------------------------------------------
+Cell editing 
+-----------------------------------------------------------------------------------------------*/
 var selectedState = 'one-shot';
 var selectedColour = 0;
 var selectedBank = 0;
@@ -97,6 +109,9 @@ function drawTools(compositionObject) {
     $.each(compositionObject.frames, function(idx, val) {
         var frameSelector = '<button class="frame-selector" data-frame-index="'+val.frame_index+'">Frame '+(val.frame_index+1)+'</button>';
         $("#available-frames").append(frameSelector);
+        if (idx == 0) {
+            $('.frame-selector').addClass('active');
+        }
     });
     $.each(compositionObject.palette, function(idx, val){
         var colourSelector = '<button class="colour-selector" data-sound="'+idx+'"></button>';
@@ -121,7 +136,9 @@ function drawTools(compositionObject) {
 
 $("#drawing-tools").on('click', ".frame-selector", function(e){
     e.preventDefault();
+    $('.frame-selector.active').removeClass('active')
     drawFrame(comp, $(this).attr('data-frame-index'));
+    $(this).addClass('active');
 });
 
 $("#drawing-tools").on('click', ".colour-selector", function (e) {
@@ -131,13 +148,9 @@ $("#drawing-tools").on('click', ".colour-selector", function (e) {
     mainStyle.addRule('.ui-slider-range', 'background: rgb(' + comp.palette[selectedColour].join(', ') + ')');
 });
 
-
-
 function fillCell(cell) {
     var currentFrame = cell.closest('table').attr('data-frame-index');
     var clickedCell = cell.attr('data-cell-id');
-    console.log("Painting:");
-    console.log(clickedCell);
     comp.frames[currentFrame].cells[clickedCell].state = selectedState;
     comp.frames[currentFrame].cells[clickedCell].sound = selectedColour;
     comp.frames[currentFrame].cells[clickedCell].bank = selectedBank;
@@ -154,18 +167,44 @@ function fillCell(cell) {
     cell.html('<p><i class="fas fa-' + stateIcons[frameObject.cells[clickedCell].state] + ' fa-fw"></i></p>');
 }
 
+$("#frame-interval").on("change", function(){
+    var currentFrame = $("#drawn-frame").attr("data-frame-index");
+    comp.frames[currentFrame].frame_interval = $(this).val();
+    $("#drawn-frame").attr('data-frame-interval', comp.frames[currentFrame].frame_interval);
+    writeComposition(comp);
+})
+
 $("#play-current-frame").on('click', function(e){
     e.preventDefault();
     var currentFrame = $("#drawn-frame").attr("data-frame-index");
-    var frameToSend = comp.frames[currentFrame];
+    playFrame(comp, currentFrame);
+});
+
+var triggerInterval;
+var playbackFrameTime = 1000;
+var playbackFrames = $('#available-frames button');
+var playingFrame = 0;
+var totalFrames = playbackFrames.length;
+playbackFrameTime
+
+function playFrame(compositionObject, frameIndex) {
+    var frameToSend = comp.frames[frameIndex];
     frameToSend.palette = comp.palette;
     frameToSend.numUnits = comp.layout[0] * comp.layout[1]
-    frameToSend.masterVolume = comp.masterVolume;
+    frameToSend.master_volume = comp.master_volume;
     sock.emit('frame', frameToSend);
-});
+}
+
 
 $("#bank-select").on('change', function(e) {
     selectedBank = $(this).val();
+    var currentFrame = $("#drawn-frame").attr("data-frame-index");
+    comp.frames[currentFrame].frame_bank = selectedBank;
+    $("#drawn-frame").attr('data-frame-bank', comp.frames[currentFrame].frame_bank);
+    $('.sonic-pixel').each(function(idx, val){
+        comp.frames[currentFrame].cells[idx].bank = selectedBank;
+        $(this).attr('data-bank', comp.frames[currentFrame].cells[idx].bank);
+    })
 });
 
 $("input[name='state-select']").on('change', function(e){
@@ -191,7 +230,7 @@ $('#master-volume').slider({
     min: 0,
     max: 100,
     change: function (e, ui) { 
-        comp.masterVolume = ui.value*0.01;
+        comp.master_volume = ui.value*0.01;
         writeComposition(comp);
     }
 });

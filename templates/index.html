@@ -15,7 +15,7 @@
     <title>Sonic Pixel 2</title>
     <script defer src="{{ url_for('static', filename='all.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui.min.css') }}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}?1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}?2" />
     
 </head>
 <body>
@@ -25,12 +25,15 @@
         <div id="bank-wrapper">
             <label for="bank-select">
                 Bank select:
-                <select id="bank-select">
-                    <option val="0">0</option>
-                    <option val="1">1</option>
-                    <option val="2">2</option>
-                </select>
             </label>
+            <select id="bank-select">
+                <option val="1">1</option>
+                <option val="2">2</option>
+            </select>
+            <label for="frame-interval">
+                Frame play time:
+            </label>
+            <input id="frame-interval" type="number" name="frame-interval"/>
         </div>
         <div id="sound-picker">
             <input id="clear" class="fill-type" type="radio" name="state-select" value="off" />
@@ -54,11 +57,12 @@
            </label>
         </div>
         <div id="playback-controls">
-          <button id="play-current-frame">Play frame</button>
+          <button id="play-current-frame">Play current frame</button>
+          <button id="play-all-frames">Play frames in sequence</button>
         </div>
-        <div class="slider-wrapper">
+        <!--div class="slider-wrapper">
             <div id="master-volume"></div>
-        </div>
+        </div-->
     </div>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
         <script src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
@@ -67,11 +71,11 @@
         var sock = io.connect(location.origin);        
     </script>
     <script>
-        document.ontouchmove = function (e) {
-                e.preventDefault();
-            }
+        document.getElementById("interface").ontouchmove = function (e) {
+            e.preventDefault();
+        }
     </script>
-    <script src="{{ url_for('static', filename='compositionBuilder.js') }}"></script>
+    <script src="{{ url_for('static', filename='compositionBuilder.js') }}?2"></script>
     <script>
         var authorName = prompt('Composer name:').toLowerCase();
         var compositionName = prompt('Composition name:').toLowerCase();

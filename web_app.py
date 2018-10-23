@@ -14,9 +14,9 @@ import datetime
 
 import os
 
-#IP_RANGE = '10.99.100.255'
-#IP_RANGE = '192.168.4.255'
-IP_RANGE = '10.99.204.255'
+IP_RANGE = '10.99.100.255'
+#IP_RANGE = '192.168.1.255'
+#IP_RANGE = '10.99.204.255'
 PORT = 9000
 
 client = udp_client.UDPClient(IP_RANGE, PORT)
@@ -67,7 +67,7 @@ def connect():
 @SOCKETIO.on('frame')
 def handle_frame(data):
     msg = osc_message_builder.OscMessageBuilder(address='/BULK')
-    master_volume = float(data.get('masterVolume'))
+    master_volume = float(data.get('master_volume'))
     current_palette = data.get('palette')
     current_num_units = data.get('numUnits')
     meta = current_num_units | DATA_SIZE << 16
@@ -76,7 +76,7 @@ def handle_frame(data):
         wav_command = WAV_COMMANDS.get(cell.get('state'))
         loop_cmd = LOOP_COMMANDS.get(cell.get('state'))
         action = wav_command | loop_cmd << 7
-        playback_cmd = int(cell.get('sound')) | int(cell.get('bank')) << 8 | action << 16
+        playback_cmd = (int(cell.get('sound'))+1) | int(cell.get('bank')) << 8 | action << 16
         msg.add_arg(playback_cmd)
         msg.add_arg(float(cell.get('begin')))
         msg.add_arg(float(cell.get('end')))

@@ -30,9 +30,10 @@ body {
 }
 
 #interface {
-height: 50vh;
+height: 60vh;
 display: flex;
 align-content: center;
+align-items: center;
 justify-content: center;
 }
 
@@ -60,9 +61,10 @@ td p{
 display: flex;
 flex-wrap: wrap;
 width: 100%;
-height: 45vh;
+height: 35vh;
 justify-content: center;
 align-content: center;
+align-items: center;
 align-items: center;
 }
 
@@ -71,6 +73,7 @@ align-items: center;
     display: flex;
     justify-content: center;
     align-content: center;
+    align-items: center;
 }
 
 #bank-wrapper {
@@ -78,9 +81,10 @@ align-items: center;
     display: flex;
     justify-content: center;
     align-content: center;
+    align-items: center;
 }
 
-#bank-select, .frame-selector, #play-current-frame {
+#bank-select, .frame-selector, #play-current-frame, #play-all-frames, #frame-interval {
     padding: .25em;
     margin: .25em;
     height: 3em;
@@ -89,6 +93,21 @@ align-items: center;
     color: white;
     border-radius: 5%;
     border: 1px solid black;
+    text-align: center;
+}
+
+.frame-selector.active, #play-current-frame:active, #play-all-frames:active {
+    background: #4d4d4d;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+#bank-wrapper label {
+    line-height: 3em;
 }
 
 .colour-selector {
@@ -104,6 +123,7 @@ align-items: center;
     display: flex;
     justify-content: center;
     align-content: center;
+    align-items: center;
     margin-top: 1em;
 }
 
@@ -120,6 +140,7 @@ align-items: center;
     display: flex;
     justify-content: center;
     align-content: center;
+    align-items: center;
 }
 #clear {
     -webkit-appearance: button;
