@@ -69,7 +69,7 @@ def handle_frame(data):
     msg = osc_message_builder.OscMessageBuilder(address='/BULK')
     master_volume = float(data.get('master_volume'))
     current_palette = data.get('palette')
-    current_num_units = data.get('numUnits')
+    current_num_units = data.get('num_units')
     meta = current_num_units | DATA_SIZE << 16
     msg.add_arg(meta)
     for cell in data.get('cells'):

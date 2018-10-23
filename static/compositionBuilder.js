@@ -174,23 +174,38 @@ $("#frame-interval").on("change", function(){
     writeComposition(comp);
 })
 
-$("#play-current-frame").on('click', function(e){
+
+$("#play-current-frame").on('click', function(e) {
     e.preventDefault();
     var currentFrame = $("#drawn-frame").attr("data-frame-index");
     playFrame(comp, currentFrame);
 });
 
-var triggerInterval;
-var playbackFrameTime = 1000;
-var playbackFrames = $('#available-frames button');
-var playingFrame = 0;
-var totalFrames = playbackFrames.length;
-playbackFrameTime
+var playbackEvents = new Array();
+
+$("#play-all-frames").on('click', function(e) {
+    e.preventDefault();
+    var totalFrames = comp.frames.length;
+    var currentFrame = $("#drawn-frame").attr("data-frame-index");
+    $('.frame-selector[data-frame-index=0]').trigger('click');
+    playFrame(comp, 0);
+    var totalTime = 0;
+    $.each(comp.frames, function(idx, val){
+        if (idx < (totalFrames-1)) {
+            totalTime = totalTime + parseInt(val.frame_interval);
+            playbackEvents.push(setTimeout(function() {
+                console.log(idx+ 1);
+                $('.frame-selector[data-frame-index='+ (idx+1) +']').trigger('click');
+                playFrame(comp, idx+ 1);
+            }, totalTime));
+        }
+    });
+});
 
 function playFrame(compositionObject, frameIndex) {
     var frameToSend = comp.frames[frameIndex];
     frameToSend.palette = comp.palette;
-    frameToSend.numUnits = comp.layout[0] * comp.layout[1]
+    frameToSend.num_units = comp.layout[0] * comp.layout[1]
     frameToSend.master_volume = comp.master_volume;
     sock.emit('frame', frameToSend);
 }
