@@ -15,7 +15,7 @@
     <title>Sonic Pixel 2</title>
     <script defer src="{{ url_for('static', filename='all.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui.min.css') }}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}?2" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}?4" />
     
 </head>
 <body>
@@ -75,7 +75,7 @@
             e.preventDefault();
         }
     </script>
-    <script src="{{ url_for('static', filename='compositionBuilder.js') }}?2"></script>
+    <script src="{{ url_for('static', filename='compositionBuilder.js') }}?4"></script>
     <script>
         var authorName = prompt('Composer name:').toLowerCase();
         var compositionName = prompt('Composition name:').toLowerCase();

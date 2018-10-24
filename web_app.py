@@ -14,8 +14,8 @@ import datetime
 
 import os
 
-IP_RANGE = '10.99.100.255'
-#IP_RANGE = '192.168.1.255'
+#IP_RANGE = '10.99.100.55'
+IP_RANGE = '192.168.1.255'
 #IP_RANGE = '10.99.204.255'
 PORT = 9000
 
