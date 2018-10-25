@@ -160,6 +160,17 @@ input::-webkit-inner-spin-button {
     width: 30%;
 }
 
+#master-volume {
+    display: none;
+}
+#toggle-master {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 6em;
+    height: 6em;
+}
+
 #playback-controls {
     width: 100%;
     display: flex;

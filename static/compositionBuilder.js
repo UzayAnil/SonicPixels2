@@ -309,3 +309,7 @@ function getCurrent(touch) {
     });
     return a.length > 0 ? a[0].e : null;
 }
+
+$("#toggle-master").on('click', function(){
+    $("#master-volume").toggle();
+})

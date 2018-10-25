@@ -15,7 +15,7 @@
     <title>Sonic Pixel 2</title>
     <script defer src="{{ url_for('static', filename='all.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui.min.css') }}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}?4" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}?5" />
     
 </head>
 <body>
@@ -69,9 +69,10 @@
           <button id="play-current-frame">Play current frame</button>
           <button id="play-all-frames">Play frames in sequence</button>
         </div>
-        <!--div class="slider-wrapper">
+        <div class="slider-wrapper">
             <div id="master-volume"></div>
-        </div-->
+        </div>
+        <div id="toggle-master"></div>
     </div>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
@@ -85,7 +86,7 @@
             e.preventDefault();
         }
     </script>
-    <script src="{{ url_for('static', filename='compositionBuilder.js') }}?4"></script>
+    <script src="{{ url_for('static', filename='compositionBuilder.js') }}?5"></script>
     <script>
         var authorName = prompt('Composer name:').toLowerCase();
         var compositionName = prompt('Composition name:').toLowerCase();
