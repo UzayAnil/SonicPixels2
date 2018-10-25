@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=idle
 WorkingDirectory=/home/pi/SonicPixels2/
-ExecStart=/usr/bin/gunicorn3 --worker-class gevent -w 1 web_app:APP
+ExecStart=/usr/bin/gunicorn3 -w 1 web_app:APP --bind="0.0.0.0" --worker-class gevent
 Restart=always
 RestartSec=3
 

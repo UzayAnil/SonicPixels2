@@ -27,8 +27,17 @@
                 Bank select:
             </label>
             <select id="bank-select">
-                <option val="1">1</option>
-                <option val="2">2</option>
+                <option value="1">Jaydev Mistry – Ghost of Barton Arcade I</option>
+                <option value="2">Jaydev Mistry – Ghost of Barton Arcade II</option>
+                <option value="3">Jaydev Mistry – Ghost of Barton Arcade – Interactive</option>
+                <option value="4">Owl Project – The Combination of Caeffeine and the Ambience of Arcades</option>
+                <option value="5">Hawthorne School – A Day In The Life</option>
+                <option value="6">Cornbrook Creative – Victorian Barton Arcade</option>
+                <option value="7">Sonic Pixels Archive – Dawn Chorus</option>
+                <option value="8">Sonic Pixels Archive – Everyday Beeps and Blips</option>
+                <option value="9">Sonic Pixels Archive –Haunted House</option>
+                <option value="10">Gemma Nash – The Secret History of the Radical Female Shopper</option>
+
             </select>
             <label for="frame-interval">
                 Frame play time:
@@ -65,7 +74,8 @@
         </div-->
     </div>
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery.ui.touch-punch.min.js') }}"></script>
     <script src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
     <script>
         var sock = io.connect(location.origin);        
