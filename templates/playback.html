@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='safari-pinned-tab.svg') }}" color="#5d5d5d">
+    <meta name="theme-color" content="#ffffff">
+    <title>Sonic Pixel 2</title>
+    <script defer src="{{ url_for('static', filename='all.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui.min.css') }}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='playback-style.css') }}?4" />
+    <div id="playback-interface">
+        <div id="loaded"><h1>Available compositions</h1></div>
+        <div id="playlist"><h1>Current playlist</h1></div>
+        <div id="now-playing"><h1>Now playing</h1></div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery.ui.touch-punch.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+    <script>
+        var sock = io.connect(location.origin);        
+    </script>
+    <script>
+        function playFrame(compositionObject, frameIndex) {
+            var frameToSend = compositionObject.frames[frameIndex];
+            frameToSend.palette = compositionObject.palette;
+            frameToSend.num_units = compositionObject.layout[0] * compositionObject.layout[1]
+            frameToSend.master_volume = compositionObject.master_volume;
+            sock.emit('frame', frameToSend);
+            //sock.emit('test', frameIndex);
+        };
+    </script>
+    <script>
+        var allCompositions;
+        $(document).ready(function(){
+            $.getJSON('/list-compositions', function(data){
+                allCompositions = data.all_compositions;
+                var availableList = '<ul id="available-composition-list">'
+                $.each(allCompositions, function(idx, value){
+                    var author = value.author;
+                    var name = value.name;
+                    availableList += '<li class="loaded-composition" data-author="' + author + '" data-name="' + name +'"><a href="#">'+author.toUpperCase()+' – ' + name.toUpperCase()+'</a></li>';
+                });
+                availableList += '</ul>';
+                $("#loaded").append(availableList);
+            });
+            $("#playlist").append('<ul id="playlist-composition-list"></ul>');
+            $("#playlist").append('<button id="play-playlist" value="play">Play</button>');
+            $("#now-playing").append('<ul id="now-playing-list"></ul>');
+        });
+        $("#loaded").on('click', ".loaded-composition", function(e){
+            e.preventDefault();
+            $(this).addClass('playlist-composition');
+            $(this).removeClass('loaded-composition');
+            $("#playlist-composition-list").append($(this));
+        });
+        $("#playlist").on('click', ".playlist-composition", function(e){
+            e.preventDefault();
+            $(this).addClass('loaded-composition');
+            $(this).removeClass('playlist-composition');
+            $("#available-composition-list").append($(this));
+        });
+        $("#playlist").on('click', "#play-playlist", function(e){
+            e.preventDefault();
+            $("#now-playing-list").append($('.playlist-composition')[0]);
+            var nowPlaying =  $($("#now-playing-list li")[0]);
+            var author = nowPlaying.attr('data-author');
+            var name = nowPlaying.attr('data-name');
+            $.getJSON('/load-composition/' + author + '/' + name, function (data) {
+                var playingComposition = data.loaded_composition;
+                var playbackEvents = new Array();
+                var totalFrames = playingComposition.frames.length;
+                var totalTime = 0;
+                playFrame(playingComposition, 0);
+                $.each(playingComposition.frames, function (idx, frame) {
+                    totalTime = totalTime + parseInt(frame.frame_interval);
+                    playbackEvents.push(setTimeout(function () {
+                        console.log(idx + 1);
+                        if (idx < (totalFrames - 1)) {
+                            playFrame(playingComposition, idx + 1);
+                        }
+                        if (idx == (totalFrames - 1)) {
+                            console.log(nowPlaying);
+                            $("#playlist-composition-list").append(nowPlaying);
+                            setTimeout(function(){
+                                console.log('Loading next');
+                                $("#play-playlist").trigger("click");
+                            },5000)
+                        }
+                    }, totalTime));
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

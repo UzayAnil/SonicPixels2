@@ -45,10 +45,6 @@ DATA_SIZE = 5
 def index():
     return render_template('index.html')
 
-@APP.route('/test')
-def test_page():
-    return render_template('test_playback.html')
-
 @APP.route('/save-composition', methods=['POST'])
 def save_composition():
     incoming = request.get_json()
@@ -60,9 +56,24 @@ def load_composition(author, name):
     loaded_composition = COMPOSITIONS.find_one({'name': name, 'author':author}, {'_id':0})
     return jsonify(loaded_composition=loaded_composition)
 
+@APP.route('/list-compositions')
+def list_compositions():
+    all_compositions = list(COMPOSITIONS.find({}, {'name':1, 'author':1, '_id':0}))
+    return jsonify(all_compositions=all_compositions)
+
+@APP.route('/playback')
+def playback():
+    return render_template('playback.html')
+
 @SOCKETIO.on('connect')
 def connect():
     print("Connected")
+
+@SOCKETIO.on('test')
+def handle_frame(data):
+    msg = osc_message_builder.OscMessageBuilder(address='/TEST')
+    msg.add_arg(int(data))
+    client.send(msg.build())
 
 @SOCKETIO.on('frame')
 def handle_frame(data):
