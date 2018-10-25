@@ -56,6 +56,7 @@
             $("#playlist").append('<ul id="playlist-composition-list"></ul>');
             $("#playlist").append('<button id="play-playlist" value="play">Play</button>');
             $("#now-playing").append('<ul id="now-playing-list"></ul>');
+            $("#now-playing").append('<p id="current-frame"></p>');
         });
         $("#loaded").on('click', ".loaded-composition", function(e){
             e.preventDefault();
@@ -81,20 +82,21 @@
                 var totalFrames = playingComposition.frames.length;
                 var totalTime = 0;
                 playFrame(playingComposition, 0);
+                $("#current-frame").html("Frame 1 of " +totalFrames);
                 $.each(playingComposition.frames, function (idx, frame) {
                     totalTime = totalTime + parseInt(frame.frame_interval);
                     playbackEvents.push(setTimeout(function () {
+                        $("#current-frame").html('Frame '+ (idx+1) +' of ' + totalFrames)
                         console.log(idx + 1);
                         if (idx < (totalFrames - 1)) {
                             playFrame(playingComposition, idx + 1);
                         }
                         if (idx == (totalFrames - 1)) {
-                            console.log(nowPlaying);
                             $("#playlist-composition-list").append(nowPlaying);
-                            setTimeout(function(){
-                                console.log('Loading next');
+                            $("#current-frame").html('Playing final frame then loading next composition');
+                            setTimeout(function() {
                                 $("#play-playlist").trigger("click");
-                            },5000)
+                            },60000)
                         }
                     }, totalTime));
                 });
